@@ -1,3 +1,5 @@
+import 'package:flutter/cupertino.dart'; 
+import 'package:flutter/material.dart';
 import 'dart:async';
 import 'dart:math' as math;
 
@@ -188,7 +190,7 @@ class _MyThemedAppState extends State<MyThemedApp> {
                   TargetPlatform.android: SharedAxisPageTransitionsBuilder(
                     transitionType: SharedAxisTransitionType.horizontal,
                   ),
-                  TargetPlatform.iOS: const CupertinoPageTransitionsBuilder(),
+                  TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
                 },
               ),
             );
