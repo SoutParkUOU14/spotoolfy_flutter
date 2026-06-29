@@ -30,20 +30,22 @@ jobs:
       - name: Fix dependency conflict
         run: flutter pub add material_color_utilities:^0.13.0
 
-
       # 5. 获取项目依赖
       - name: Install dependencies
+        run: flutter pub get
+
+      # 🔄 ➕ 强行插入这一步：用 PowerShell 语法修复 Windows 下的 Dart 兼容性错误
+      - name: Fix Flutter SDK Compatibility (Windows)
+        shell: pwsh
         run: |
-          flutter pub add material_color_utilities:^0.13.0
-          flutter pub get
+          # 1. 在 main.dart 最顶部插入 cupertino 库导入
+          $content = Get-Content lib/main.dart
+          $importStr = "import 'package:flutter/cupertino.dart';"
+          $importStr + $content | Set-Content lib/main.dart
+          
+          # 2. 擦除错误的 const 关键字
+          (Get-Content lib/main.dart) -replace 'const CupertinoPageTransitionsBuilder', 'CupertinoPageTransitionsBuilder' | Set-Content lib/main.dart
 
-      # ➕ 强行插入这一步：自动擦除 main.dart 191行的错误 const
-      - name: Fix Flutter SDK Compatibility
-        run: sed -i 's/const CupertinoPageTransitionsBuilder/CupertinoPageTransitionsBuilder/g' lib/main.dart
-
-      # 6. 执行打包命令
-      - name: Build APK
-        run: flutter build apk --split-per-abi --target-platform android-arm64
       # 6. 执行 Windows 编译命令
       - name: Build Windows Application
         run: flutter build windows
