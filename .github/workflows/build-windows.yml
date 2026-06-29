@@ -30,10 +30,20 @@ jobs:
       - name: Fix dependency conflict
         run: flutter pub add material_color_utilities:^0.13.0
 
+
       # 5. 获取项目依赖
       - name: Install dependencies
-        run: flutter pub get
+        run: |
+          flutter pub add material_color_utilities:^0.13.0
+          flutter pub get
 
+      # ➕ 强行插入这一步：自动擦除 main.dart 191行的错误 const
+      - name: Fix Flutter SDK Compatibility
+        run: sed -i 's/const CupertinoPageTransitionsBuilder/CupertinoPageTransitionsBuilder/g' lib/main.dart
+
+      # 6. 执行打包命令
+      - name: Build APK
+        run: flutter build apk --split-per-abi --target-platform android-arm64
       # 6. 执行 Windows 编译命令
       - name: Build Windows Application
         run: flutter build windows
