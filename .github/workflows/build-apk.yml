@@ -1,0 +1,46 @@
+name: Flutter Build APK
+
+# 触发条件：当你提交代码到 main 分支，或者在 GitHub 网页上手动点击运行
+on:
+  push:
+    branches:
+      - main  # 如果你的主分支叫 master，请改成 master
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. 检出仓库代码
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2. 配置 Java 环境 (Android 打包必需)
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      # 3. 配置 Flutter 环境
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          # flutter-version: '3.19.0' # 如果你有特定版本要求，可以解开这行
+
+      # 4. 获取项目依赖
+      - name: Install dependencies
+        run: flutter pub get
+
+      # 5. 执行打包命令 (生成适用于主流手机的 arm64 架构 APK)
+      - name: Build APK
+        run: flutter build apk --split-per-abi --target-platform android-arm64
+
+      # 6. 将打包好的 APK 孤立出来，方便用户下载
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: spotoolfy-local-apk
+          path: build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
