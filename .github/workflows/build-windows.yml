@@ -1,0 +1,46 @@
+name: Flutter Build Windows EXE
+
+on:
+  push:
+    branches:
+      - main
+      - master  # 兼容 main 或 master 分支
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest  # 👈 核心：告诉 GitHub 必须用 Windows 电脑来编译
+
+    steps:
+      # 1. 拉取仓库代码
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2. 配置 Flutter 环境
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+
+      # 3. 开启 Flutter 的 Windows 桌面支持
+      - name: Enable Windows Support
+        run: flutter config --enable-windows-desktop
+
+      # 4. 自动修复上次遇到的那个版本冲突问题
+      - name: Fix dependency conflict
+        run: flutter pub add material_color_utilities:^0.13.0
+
+      # 5. 获取项目依赖
+      - name: Install dependencies
+        run: flutter pub get
+
+      # 6. 执行 Windows 编译命令
+      - name: Build Windows Application
+        run: flutter build windows
+
+      # 7. 打包并上传整套 Release 文件（包含 exe 和必要的 dll 动态链接库）
+      - name: Upload Windows Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: spotoolfy-windows-app
+          path: build/windows/x64/runner/Release/
