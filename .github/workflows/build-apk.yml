@@ -36,16 +36,21 @@ jobs:
           flutter pub add material_color_utilities:^0.13.0   # 👈 强行插入这一行，自动解决版本冲突
           flutter pub get
 
-
       # 5. 获取项目依赖
       - name: Install dependencies
         run: |
           flutter pub add material_color_utilities:^0.13.0
           flutter pub get
 
-      # ➕ 强行插入这一步：自动擦除 main.dart 191行的错误 const
+      # 🔄 升级这一步：自动修复环境兼容性 + 剔除缺失的本地化配置
       - name: Fix Flutter SDK Compatibility
-        run: sed -i 's/const CupertinoPageTransitionsBuilder/CupertinoPageTransitionsBuilder/g' lib/main.dart
+        run: |
+          # 1. 强行在 main.dart 第一行插入缺少的 cupertino 库导入
+          sed -i '1s/^/import "package:flutter\/cupertino.dart";\n/' lib/main.dart
+          # 2. 擦除 main.dart 中错误的 const 关键字
+          sed -i 's/const CupertinoPageTransitionsBuilder/CupertinoPageTransitionsBuilder/g' lib/main.dart
+          # 3. ➕ 强行删掉 AndroidManifest 中找不到的多语言配置属性
+          sed -i 's/android:localeConfig="@xml\/locale_config"//g' android/app/src/main/AndroidManifest.xml
 
       # 6. 执行打包命令
       - name: Build APK
