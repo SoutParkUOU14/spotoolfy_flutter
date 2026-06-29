@@ -32,9 +32,11 @@ jobs:
 
       # 4. 获取项目依赖
       - name: Install dependencies
-        run: flutter pub get
+        run: |
+          flutter pub add material_color_utilities:^0.13.0   # 👈 强行插入这一行，自动解决版本冲突
+          flutter pub get
 
-      # 5. 执行打包命令 (生成适用于主流手机的 arm64 架构 APK)
+      # 5. 执行打包命令
       - name: Build APK
         run: flutter build apk --split-per-abi --target-platform android-arm64
 
